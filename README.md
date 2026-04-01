@@ -1,4 +1,4 @@
-# Claude Code Reverse-Engineered
+# claude-code-working
 
 An English-translated mirror of a reverse-engineered Claude Code CLI codebase. The goal of this repository is to preserve the project in a more accessible form for English-speaking readers while keeping the code, docs, and architecture notes usable.
 

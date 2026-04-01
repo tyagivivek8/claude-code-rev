@@ -1,16 +1,16 @@
 {
-  "name": "claude-js",
+  "name": "claude-code-working",
   "version": "1.0.3",
   "description": "Reverse-engineered Anthropic Claude Code CLI — interactive AI coding assistant in the terminal",
   "type": "module",
   "author": "iliya <iliyazelenkog@gmail.com>",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/777genius/claude-code.git"
+    "url": "git+https://github.com/777genius/claude-code-working.git"
   },
-  "homepage": "https://github.com/777genius/claude-code#readme",
+  "homepage": "https://github.com/777genius/claude-code-working#readme",
   "bugs": {
-    "url": "https://github.com/777genius/claude-code/issues"
+    "url": "https://github.com/777genius/claude-code-working/issues"
   },
   "keywords": [
     "claude",

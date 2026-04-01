@@ -16,13 +16,13 @@
     }
   },
   "metadata": {
-    "og:image": "https://raw.githubusercontent.com/777genius/claude-code/main/docs/images/architecture-layers.png",
-    "twitter:image": "https://raw.githubusercontent.com/777genius/claude-code/main/docs/images/architecture-layers.png",
+    "og:image": "https://raw.githubusercontent.com/777genius/claude-code-working/main/docs/images/architecture-layers.png",
+    "twitter:image": "https://raw.githubusercontent.com/777genius/claude-code-working/main/docs/images/architecture-layers.png",
     "twitter:card": "summary_large_image"
   },
   "topbarCtaButton": {
     "type": "github",
-    "url": "https://github.com/777genius/claude-code"
+    "url": "https://github.com/777genius/claude-code-working"
   },
   "search": {
     "prompt": "Search Claude Code architecture documentation..."
@@ -112,6 +112,6 @@
     }
   ],
   "footerSocials": {
-    "github": "https://github.com/777genius/claude-code"
+    "github": "https://github.com/777genius/claude-code-working"
   }
 }

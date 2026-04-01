@@ -6,11 +6,11 @@
   "author": "iliya <iliyazelenkog@gmail.com>",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/iliyaZelenko/claude-code.git"
+    "url": "git+https://github.com/777genius/claude-code.git"
   },
-  "homepage": "https://github.com/iliyaZelenko/claude-code#readme",
+  "homepage": "https://github.com/777genius/claude-code#readme",
   "bugs": {
-    "url": "https://github.com/iliyaZelenko/claude-code/issues"
+    "url": "https://github.com/777genius/claude-code/issues"
   },
   "keywords": [
     "claude",

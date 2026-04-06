@@ -2123,6 +2123,7 @@ async function run(): Promise<CommanderCommand> {
       }
     }
 
+    console.error('[debug:action] before effectiveModel computation');
     // Compute effective model early so hooks can run in parallel with MCP
     // If user didn't specify a model but agent has one, use the agent's model
     let effectiveModel = userSpecifiedModel;
@@ -2158,6 +2159,7 @@ async function run(): Promise<CommanderCommand> {
       }
     }
 
+    console.error('[debug:action] before tmux teammates block');
     // For tmux teammates with --agent-type, append the custom agent's prompt
     if (isAgentSwarmsEnabled() && storedTeammateOpts?.agentId && storedTeammateOpts?.agentName && storedTeammateOpts?.teamName && storedTeammateOpts?.agentType) {
       // Look up the custom agent definition
@@ -2229,6 +2231,7 @@ async function run(): Promise<CommanderCommand> {
       appendSystemPrompt = appendSystemPrompt ? `${appendSystemPrompt}\n\n${assistantAddendum}` : assistantAddendum;
     }
 
+    console.error('[debug:action] before Ink root block');
     // Ink root is only needed for interactive sessions — patchConsole in the
     // Ink constructor would swallow console output in headless mode.
     let root!: Root;

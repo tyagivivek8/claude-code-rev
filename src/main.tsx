@@ -2124,19 +2124,25 @@ async function run(): Promise<CommanderCommand> {
     }
 
     console.error('[debug:action] before effectiveModel computation');
+    try {
     // Compute effective model early so hooks can run in parallel with MCP
     // If user didn't specify a model but agent has one, use the agent's model
     let effectiveModel = userSpecifiedModel;
+    console.error('[debug:action] effectiveModel=' + effectiveModel);
     if (!effectiveModel && mainThreadAgentDefinition?.model && mainThreadAgentDefinition.model !== 'inherit') {
       effectiveModel = parseUserSpecifiedModel(mainThreadAgentDefinition.model);
     }
     setMainLoopModelOverride(effectiveModel);
+    console.error('[debug:action] after setMainLoopModelOverride');
 
     // Compute resolved model for hooks (use user-specified model at launch)
     setInitialMainLoopModel(getUserSpecifiedModelSetting() || null);
     const initialMainLoopModel = getInitialMainLoopModel();
+    console.error('[debug:action] initialMainLoopModel=' + initialMainLoopModel);
     const resolvedInitialModel = parseUserSpecifiedModel(initialMainLoopModel ?? getDefaultMainLoopModel());
+    console.error('[debug:action] resolvedInitialModel=' + resolvedInitialModel);
     let advisorModel: string | undefined;
+    console.error('[debug:action] before isAdvisorEnabled');
     if (isAdvisorEnabled()) {
       const advisorOption = canUserConfigureAdvisor() ? (options as {
         advisor?: string;
@@ -2159,6 +2165,7 @@ async function run(): Promise<CommanderCommand> {
       }
     }
 
+    } catch(e: any) { console.error('[debug:action] CAUGHT ERROR: ' + e.message + '\n' + e.stack); }
     console.error('[debug:action] before tmux teammates block');
     // For tmux teammates with --agent-type, append the custom agent's prompt
     if (isAgentSwarmsEnabled() && storedTeammateOpts?.agentId && storedTeammateOpts?.agentName && storedTeammateOpts?.teamName && storedTeammateOpts?.agentType) {

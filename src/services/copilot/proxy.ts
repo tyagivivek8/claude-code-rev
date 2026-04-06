@@ -10,18 +10,37 @@ const COPILOT_CHAT_URL =
   'https://api.githubcopilot.com/chat/completions'
 
 // ── Model mapping ────────────────────────────────────────────────
+// Copilot supports: claude-sonnet-4, claude-opus-4 (and possibly claude-3.5-sonnet)
+// Map all Anthropic model IDs to supported Copilot model names
 const MODEL_MAP: Record<string, string> = {
-  'claude-opus-4-20250514': 'claude-opus-4',
-  'claude-opus-4': 'claude-opus-4',
+  // Opus variants
+  'claude-opus-4-20250514': 'claude-sonnet-4',
+  'claude-opus-4': 'claude-sonnet-4',
+  'claude-opus-4-1-20250805': 'claude-sonnet-4',
+  'claude-opus-4-1': 'claude-sonnet-4',
+  'claude-opus-4-5-20251101': 'claude-sonnet-4',
+  'claude-opus-4-5': 'claude-sonnet-4',
+  'claude-opus-4-6': 'claude-sonnet-4',
+  // Sonnet variants
   'claude-sonnet-4-20250514': 'claude-sonnet-4',
   'claude-sonnet-4': 'claude-sonnet-4',
-  'claude-haiku-4-5-20251001': 'claude-haiku-3.5-sonnet',
-  'claude-3-5-haiku-20241022': 'claude-haiku-3.5-sonnet',
+  'claude-sonnet-4-5-20250929': 'claude-sonnet-4',
+  'claude-sonnet-4-5': 'claude-sonnet-4',
+  'claude-sonnet-4-6': 'claude-sonnet-4',
+  'claude-3-7-sonnet-20250219': 'claude-sonnet-4',
   'claude-3-5-sonnet-20241022': 'claude-sonnet-4',
+  // Haiku variants
+  'claude-haiku-4-5-20251001': 'claude-sonnet-4',
+  'claude-haiku-4-5': 'claude-sonnet-4',
+  'claude-3-5-haiku-20241022': 'claude-sonnet-4',
 }
 
 function mapModel(model: string): string {
-  return MODEL_MAP[model] ?? model
+  const mapped = MODEL_MAP[model] ?? 'claude-sonnet-4'
+  if (mapped !== model) {
+    process.stderr.write(`[copilot] model: ${model} → ${mapped}\n`)
+  }
+  return mapped
 }
 
 // ── Message translation (Anthropic → OpenAI) ──────────────────��─
@@ -473,8 +492,14 @@ export function createCopilotFetch(
     })
 
     if (!res.ok) {
-      // Return error as-is for the SDK to handle
-      return res
+      const errBody = await res.text()
+      process.stderr.write(`[copilot] API error ${res.status}: ${errBody}\n`)
+      // Return a new Response with the error text (original body consumed)
+      return new Response(errBody, {
+        status: res.status,
+        statusText: res.statusText,
+        headers: res.headers,
+      })
     }
 
     if (body.stream !== false && res.body) {

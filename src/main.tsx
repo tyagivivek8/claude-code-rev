@@ -850,8 +850,10 @@ export async function main() {
 
   // Parse and load settings flags early, before init()
   eagerLoadSettings();
+  console.error('[debug:main] before run()');
   profileCheckpoint('main_before_run');
   await run();
+  console.error('[debug:main] after run()');
   profileCheckpoint('main_after_run');
 }
 async function getInputPrompt(prompt: string, inputFormat: 'text' | 'stream-json'): Promise<string | AsyncIterable<string>> {
@@ -911,9 +913,12 @@ async function run(): Promise<CommanderCommand> {
     // Must resolve before init() which triggers the first settings read
     // (applySafeConfigEnvironmentVariables → getSettingsForSource('policySettings')
     // → isRemoteManagedSettingsEligible → sync keychain reads otherwise ~65ms).
+    console.error('[debug:preAction] start');
     await Promise.all([ensureMdmSettingsLoaded(), ensureKeychainPrefetchCompleted()]);
+    console.error('[debug:preAction] after mdm+keychain');
     profileCheckpoint('preAction_after_mdm');
     await init();
+    console.error('[debug:preAction] after init');
     profileCheckpoint('preAction_after_init');
 
     // process.title on Windows sets the console title directly; on POSIX,
@@ -1004,6 +1009,7 @@ async function run(): Promise<CommanderCommand> {
   // top-level option. Single-value + collect accumulator means each
   // --plugin-dir takes exactly one arg; repeat the flag for multiple dirs.
   .option('--plugin-dir <path>', 'Load plugins from a directory for this session only (repeatable: --plugin-dir A --plugin-dir B)', (val: string, prev: string[]) => [...prev, val], [] as string[]).option('--disable-slash-commands', 'Disable all skills', () => true).option('--chrome', 'Enable Claude in Chrome integration').option('--no-chrome', 'Disable Claude in Chrome integration').option('--file <specs...>', 'File resources to download at startup. Format: file_id:relative_path (e.g., --file file_abc:doc.txt file_def:img.png)').action(async (prompt, options) => {
+    console.error('[debug:action] handler start');
     profileCheckpoint('action_handler_start');
 
     // --bare = one-switch minimal mode. Sets SIMPLE so all the existing
@@ -1775,7 +1781,9 @@ async function run(): Promise<CommanderCommand> {
       // biome-ignore lint/suspicious/noConsole:: intentional console output
       console.error(warning);
     });
+    console.error('[debug:action] before assertMinVersion');
     void assertMinVersion();
+    console.error('[debug:action] after assertMinVersion');
 
     // claude.ai config fetch: -p mode only (interactive uses useManageMCPConnections
     // two-phase loading). Kicked off here to overlap with setup(); awaited
@@ -1924,6 +1932,7 @@ async function run(): Promise<CommanderCommand> {
       initBuiltinPlugins();
       initBundledSkills();
     }
+    console.error('[debug:action] before setup()');
     const setupPromise = setup(preSetupCwd, permissionMode, allowDangerouslySkipPermissions, worktreeEnabled, worktreeName, tmuxEnabled, sessionId ? validateUuid(sessionId) : undefined, worktreePRNumber, messagingSocketPath);
     const commandsPromise = worktreeEnabled ? null : getCommands(preSetupCwd);
     const agentDefsPromise = worktreeEnabled ? null : getAgentDefinitionsWithOverrides(preSetupCwd);
@@ -1932,6 +1941,7 @@ async function run(): Promise<CommanderCommand> {
     commandsPromise?.catch(() => {});
     agentDefsPromise?.catch(() => {});
     await setupPromise;
+    console.error('[debug:action] after setup()');
     logForDebugging(`[STARTUP] setup() completed in ${Date.now() - setupStart}ms`);
     profileCheckpoint('action_after_setup');
 

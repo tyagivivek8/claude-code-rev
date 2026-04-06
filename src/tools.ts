@@ -60,15 +60,30 @@ import { GrepTool } from './tools/GrepTool/GrepTool.js'
 import { TungstenTool } from './tools/TungstenTool/TungstenTool.js'
 // Lazy require to break circular dependency: tools.ts -> TeamCreateTool/TeamDeleteTool -> ... -> tools.ts
 /* eslint-disable @typescript-eslint/no-require-imports */
-const getTeamCreateTool = () =>
-  require('./tools/TeamCreateTool/TeamCreateTool.js')
-    .TeamCreateTool as typeof import('./tools/TeamCreateTool/TeamCreateTool.js').TeamCreateTool
-const getTeamDeleteTool = () =>
-  require('./tools/TeamDeleteTool/TeamDeleteTool.js')
-    .TeamDeleteTool as typeof import('./tools/TeamDeleteTool/TeamDeleteTool.js').TeamDeleteTool
-const getSendMessageTool = () =>
-  require('./tools/SendMessageTool/SendMessageTool.js')
-    .SendMessageTool as typeof import('./tools/SendMessageTool/SendMessageTool.js').SendMessageTool
+const getTeamCreateTool = (): Tool => {
+  try {
+    return require('./tools/TeamCreateTool/TeamCreateTool.js').TeamCreateTool
+  } catch (e: any) {
+    console.error('[tools] Failed to load TeamCreateTool:', e.message)
+    return BashTool // fallback
+  }
+}
+const getTeamDeleteTool = (): Tool => {
+  try {
+    return require('./tools/TeamDeleteTool/TeamDeleteTool.js').TeamDeleteTool
+  } catch (e: any) {
+    console.error('[tools] Failed to load TeamDeleteTool:', e.message)
+    return BashTool // fallback
+  }
+}
+const getSendMessageTool = (): Tool => {
+  try {
+    return require('./tools/SendMessageTool/SendMessageTool.js').SendMessageTool
+  } catch (e: any) {
+    console.error('[tools] Failed to load SendMessageTool:', e.message)
+    return BashTool // fallback
+  }
+}
 /* eslint-enable @typescript-eslint/no-require-imports */
 import { AskUserQuestionTool } from './tools/AskUserQuestionTool/AskUserQuestionTool.js'
 import { LSPTool } from './tools/LSPTool/LSPTool.js'
@@ -149,9 +164,14 @@ export { REPL_ONLY_TOOLS }
 /* eslint-disable @typescript-eslint/no-require-imports */
 const getPowerShellTool = () => {
   if (!isPowerShellToolEnabled()) return null
-  return (
-    require('./tools/PowerShellTool/PowerShellTool.js') as typeof import('./tools/PowerShellTool/PowerShellTool.js')
-  ).PowerShellTool
+  try {
+    return (
+      require('./tools/PowerShellTool/PowerShellTool.js') as typeof import('./tools/PowerShellTool/PowerShellTool.js')
+    ).PowerShellTool
+  } catch (e: any) {
+    console.error('[tools] Failed to load PowerShellTool:', e.message)
+    return null
+  }
 }
 /* eslint-enable @typescript-eslint/no-require-imports */
 
@@ -191,6 +211,14 @@ export function getToolsForDefaultPreset(): string[] {
  * NOTE: This MUST stay in sync with https://console.statsig.com/4aF3Ewatb6xPVpCwxb5nA3/dynamic_configs/claude_code_global_system_caching, in order to cache the system prompt across users.
  */
 export function getAllBaseTools(): Tools {
+  console.error('[debug:getTools] getAllBaseTools() called');
+  try { return _getAllBaseToolsInner() } catch (e: any) {
+    console.error('[debug:getTools] getAllBaseTools FAILED:', e.message, e.stack);
+    // Return minimal fallback
+    return [BashTool, FileReadTool, FileEditTool, FileWriteTool, GlobTool, GrepTool, AgentTool, WebFetchTool, WebSearchTool]
+  }
+}
+function _getAllBaseToolsInner(): Tools {
   return [
     AgentTool,
     TaskOutputTool,

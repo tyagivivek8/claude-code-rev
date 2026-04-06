@@ -64,7 +64,6 @@ const getTeamCreateTool = (): Tool => {
   try {
     return require('./tools/TeamCreateTool/TeamCreateTool.js').TeamCreateTool
   } catch (e: any) {
-    console.error('[tools] Failed to load TeamCreateTool:', e.message)
     return BashTool // fallback
   }
 }
@@ -72,7 +71,6 @@ const getTeamDeleteTool = (): Tool => {
   try {
     return require('./tools/TeamDeleteTool/TeamDeleteTool.js').TeamDeleteTool
   } catch (e: any) {
-    console.error('[tools] Failed to load TeamDeleteTool:', e.message)
     return BashTool // fallback
   }
 }
@@ -80,7 +78,6 @@ const getSendMessageTool = (): Tool => {
   try {
     return require('./tools/SendMessageTool/SendMessageTool.js').SendMessageTool
   } catch (e: any) {
-    console.error('[tools] Failed to load SendMessageTool:', e.message)
     return BashTool // fallback
   }
 }
@@ -169,7 +166,6 @@ const getPowerShellTool = () => {
       require('./tools/PowerShellTool/PowerShellTool.js') as typeof import('./tools/PowerShellTool/PowerShellTool.js')
     ).PowerShellTool
   } catch (e: any) {
-    console.error('[tools] Failed to load PowerShellTool:', e.message)
     return null
   }
 }
@@ -211,9 +207,7 @@ export function getToolsForDefaultPreset(): string[] {
  * NOTE: This MUST stay in sync with https://console.statsig.com/4aF3Ewatb6xPVpCwxb5nA3/dynamic_configs/claude_code_global_system_caching, in order to cache the system prompt across users.
  */
 export function getAllBaseTools(): Tools {
-  console.error('[debug:getTools] getAllBaseTools() called');
   try { return _getAllBaseToolsInner() } catch (e: any) {
-    console.error('[debug:getTools] getAllBaseTools FAILED:', e.message, e.stack);
     // Return minimal fallback
     return [BashTool, FileReadTool, FileEditTool, FileWriteTool, GlobTool, GrepTool, AgentTool, WebFetchTool, WebSearchTool]
   }
@@ -297,10 +291,8 @@ export function filterToolsByDenyRules<
 }
 
 export const getTools = (permissionContext: ToolPermissionContext): Tools => {
-  console.error('[debug:getTools] entered, SIMPLE=' + process.env.CLAUDE_CODE_SIMPLE);
   // Simple mode: only Bash, Read, and Edit tools
   if (isEnvTruthy(process.env.CLAUDE_CODE_SIMPLE)) {
-    console.error('[debug:getTools] simple mode, returning early');
     // --bare + REPL mode: REPL wraps Bash/Read/Edit/etc inside the VM, so
     // return REPL instead of the raw primitives. Matches the non-bare path
     // below which also hides REPL_ONLY_TOOLS when REPL is enabled.

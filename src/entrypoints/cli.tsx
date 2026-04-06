@@ -317,16 +317,12 @@ async function main(): Promise<void> {
     }
 
     // No special flags detected, load and run the full CLI
-    console.error('[debug] before earlyInput import');
     const { startCapturingEarlyInput } = await import("../utils/earlyInput.js");
     startCapturingEarlyInput();
-    console.error('[debug] before main import');
     profileCheckpoint("cli_before_main_import");
     const { main: cliMain } = await import("../main.jsx");
-    console.error('[debug] main imported, calling cliMain()');
     profileCheckpoint("cli_after_main_import");
     await cliMain();
-    console.error('[debug] cliMain() returned');
     profileCheckpoint("cli_after_main_complete");
 }
 

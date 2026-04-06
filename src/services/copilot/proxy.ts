@@ -38,11 +38,7 @@ const MODEL_MAP: Record<string, string> = {
 const DEFAULT_COPILOT_MODEL = 'claude-opus-4.6'
 
 function mapModel(model: string): string {
-  const mapped = MODEL_MAP[model] ?? DEFAULT_COPILOT_MODEL
-  if (mapped !== model) {
-    process.stderr.write(`[copilot] model: ${model} → ${mapped}\n`)
-  }
-  return mapped
+  return MODEL_MAP[model] ?? DEFAULT_COPILOT_MODEL
 }
 
 // ── Message translation (Anthropic → OpenAI) ──────────────────��─

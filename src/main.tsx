@@ -2252,9 +2252,10 @@ async function run(): Promise<CommanderCommand> {
       const {
         createRoot
       } = await import('./ink.js');
-      console.error('[debug:interactive] creating root...');
+      const _dbg = (msg: string) => { try { require('fs').writeSync(2, msg + '\n') } catch {} };
+      _dbg('[debug:interactive] creating root...');
       root = await createRoot(ctx.renderOptions);
-      console.error('[debug:interactive] root created');
+      _dbg('[debug:interactive] root created');
 
       // Log startup time now, before any blocking dialog renders. Logging
       // from REPL's first render (the old location) included however long
@@ -2264,10 +2265,10 @@ async function run(): Promise<CommanderCommand> {
         event: 'startup' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
         durationMs: Math.round(process.uptime() * 1000)
       });
-      console.error('[debug:interactive] before showSetupScreens');
+      _dbg('[debug:interactive] before showSetupScreens');
       const setupScreensStart = Date.now();
       const onboardingShown = await showSetupScreens(root, permissionMode, allowDangerouslySkipPermissions, commands, enableClaudeInChrome, devChannels);
-      console.error('[debug:interactive] after showSetupScreens');
+      _dbg('[debug:interactive] after showSetupScreens');
       logForDebugging(`[STARTUP] showSetupScreens() completed in ${Date.now() - setupScreensStart}ms`);
 
       // Now that trust is established and GrowthBook has auth headers,

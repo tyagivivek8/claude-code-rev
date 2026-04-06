@@ -487,20 +487,52 @@ export function createCopilotFetch(
       'X-Request-Id': crypto.randomUUID(),
     }
 
-    const res = await fetch(COPILOT_CHAT_URL, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify(openaiBody),
-    })
+    let res: Response
+    try {
+      res = await fetch(COPILOT_CHAT_URL, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(openaiBody),
+      })
+    } catch (fetchErr: any) {
+      const msg = fetchErr?.message || String(fetchErr)
+      process.stderr.write(`\n[Copilot] Network error: ${msg}\n\n`)
+      const anthropicError = JSON.stringify({
+        type: 'error',
+        error: { type: 'api_error', message: `[Copilot] Network error: ${msg}` },
+      })
+      return new Response(anthropicError, {
+        status: 502,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    }
 
     if (!res.ok) {
       const errBody = await res.text()
-      process.stderr.write(`[copilot] API error ${res.status}: ${errBody}\n`)
-      // Return a new Response with the error text (original body consumed)
-      return new Response(errBody, {
+      // Parse the error for a user-friendly message
+      let errMsg = errBody
+      try {
+        const parsed = JSON.parse(errBody)
+        errMsg = parsed?.error?.message || parsed?.message || errBody
+      } catch {}
+
+      const isQuota = res.status === 429 || errMsg.toLowerCase().includes('quota') || errMsg.toLowerCase().includes('rate')
+      const userMsg = isQuota
+        ? `[Copilot] Rate limit / quota exceeded. Try again in a few minutes, or switch to a different model with --model sonnet`
+        : `[Copilot] API error (${res.status}): ${errMsg}`
+      process.stderr.write(`\n${userMsg}\n\n`)
+
+      // Return as Anthropic-formatted error so the SDK handles it properly
+      const anthropicError = JSON.stringify({
+        type: 'error',
+        error: {
+          type: isQuota ? 'rate_limit_error' : 'api_error',
+          message: userMsg,
+        },
+      })
+      return new Response(anthropicError, {
         status: res.status,
-        statusText: res.statusText,
-        headers: res.headers,
+        headers: { 'Content-Type': 'application/json' },
       })
     }
 

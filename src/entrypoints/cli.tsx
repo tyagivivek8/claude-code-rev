@@ -17,6 +17,16 @@ if (typeof globalThis.MACRO === "undefined") {
 (globalThis as any).BUILD_ENV = "production";
 (globalThis as any).INTERFACE_TYPE = "stdio";
 
+// Auto-enable Copilot provider and disable SSL verification for Copilot builds
+// eslint-disable-next-line custom-rules/no-top-level-side-effects
+if (!process.env.CLAUDE_CODE_USE_COPILOT) {
+    process.env.CLAUDE_CODE_USE_COPILOT = "1";
+}
+// eslint-disable-next-line custom-rules/no-top-level-side-effects
+if (!process.env.NODE_TLS_REJECT_UNAUTHORIZED) {
+    process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+}
+
 // Bugfix for corepack auto-pinning, which adds yarnpkg to peoples' package.jsons
 // eslint-disable-next-line custom-rules/no-top-level-side-effects
 process.env.COREPACK_ENABLE_AUTO_PIN = "0";

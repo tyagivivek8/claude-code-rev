@@ -22,7 +22,7 @@ type Props = {
   isClaudeAISubscriber: boolean;
   isWSL: boolean;
 };
-function ClawdInChromeMenu(t0) {
+function ClaudeInChromeMenu(t0) {
   const $ = _c(41);
   const {
     onDone,

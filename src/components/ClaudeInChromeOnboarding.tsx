@@ -11,7 +11,7 @@ const CHROME_PERMISSIONS_URL = 'https://clau.de/chrome/permissions';
 type Props = {
   onDone(): void;
 };
-export function ClawdInChromeOnboarding(t0) {
+export function ClaudeInChromeOnboarding(t0) {
   const $ = _c(20);
   const {
     onDone

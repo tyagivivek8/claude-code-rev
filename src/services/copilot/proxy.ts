@@ -12,14 +12,14 @@ const COPILOT_CHAT_URL =
 // ── Model mapping ────────────────────────────────────────────────
 // Copilot uses dot notation: claude-sonnet-4.5, claude-opus-4.6, etc.
 const MODEL_MAP: Record<string, string> = {
-  // Opus variants → claude-sonnet-4.5 (best available on Copilot)
-  'claude-opus-4-20250514': 'claude-sonnet-4.5',
-  'claude-opus-4': 'claude-sonnet-4.5',
-  'claude-opus-4-1-20250805': 'claude-sonnet-4.5',
-  'claude-opus-4-1': 'claude-sonnet-4.5',
-  'claude-opus-4-5-20251101': 'claude-sonnet-4.5',
-  'claude-opus-4-5': 'claude-sonnet-4.5',
-  'claude-opus-4-6': 'claude-sonnet-4.5',
+  // Opus variants
+  'claude-opus-4-20250514': 'claude-opus-4.6',
+  'claude-opus-4': 'claude-opus-4.6',
+  'claude-opus-4-1-20250805': 'claude-opus-4.6',
+  'claude-opus-4-1': 'claude-opus-4.6',
+  'claude-opus-4-5-20251101': 'claude-opus-4.6',
+  'claude-opus-4-5': 'claude-opus-4.6',
+  'claude-opus-4-6': 'claude-opus-4.6',
   // Sonnet variants
   'claude-sonnet-4-20250514': 'claude-sonnet-4.5',
   'claude-sonnet-4': 'claude-sonnet-4.5',
@@ -35,7 +35,7 @@ const MODEL_MAP: Record<string, string> = {
 }
 
 // Default to best available model on Copilot
-const DEFAULT_COPILOT_MODEL = 'claude-sonnet-4.5'
+const DEFAULT_COPILOT_MODEL = 'claude-opus-4.6'
 
 function mapModel(model: string): string {
   const mapped = MODEL_MAP[model] ?? DEFAULT_COPILOT_MODEL

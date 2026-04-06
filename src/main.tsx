@@ -1784,6 +1784,7 @@ async function run(): Promise<CommanderCommand> {
     console.error('[debug:action] before assertMinVersion');
     void assertMinVersion();
     console.error('[debug:action] after assertMinVersion');
+    console.error('[debug:action] isNonInteractiveSession=' + isNonInteractiveSession + ' isBareMode=' + isBareMode());
 
     // claude.ai config fetch: -p mode only (interactive uses useManageMCPConnections
     // two-phase loading). Kicked off here to overlap with setup(); awaited
@@ -1866,14 +1867,18 @@ async function run(): Promise<CommanderCommand> {
       process.exit(1);
     }
     const effectivePrompt = prompt || '';
+    console.error('[debug:action] before getInputPrompt, prompt=' + JSON.stringify(effectivePrompt?.slice(0,30)));
     let inputPrompt = await getInputPrompt(effectivePrompt, (inputFormat ?? 'text') as 'text' | 'stream-json');
+    console.error('[debug:action] after getInputPrompt');
     profileCheckpoint('action_after_input_prompt');
 
     // Activate proactive mode BEFORE getTools() so SleepTool.isEnabled()
     // (which returns isProactiveActive()) passes and Sleep is included.
     // The later REPL-path maybeActivateProactive() calls are idempotent.
     maybeActivateProactive(options);
+    console.error('[debug:action] before getTools');
     let tools = getTools(toolPermissionContext);
+    console.error('[debug:action] after getTools');
 
     // Apply coordinator mode tool filtering for headless path
     // (mirrors useMergedTools.ts filtering for REPL/interactive path)

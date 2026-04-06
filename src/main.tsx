@@ -1946,7 +1946,7 @@ async function run(): Promise<CommanderCommand> {
     commandsPromise?.catch(() => {});
     agentDefsPromise?.catch(() => {});
     await setupPromise;
-    console.error('[debug:action] after setup()');
+    console.error('[debug:action] after setup(), loading commands+agents...');
     logForDebugging(`[STARTUP] setup() completed in ${Date.now() - setupStart}ms`);
     profileCheckpoint('action_after_setup');
 
@@ -1964,7 +1964,9 @@ async function run(): Promise<CommanderCommand> {
         }).messagingSocketPath;
       }
     }
+    console.error('[debug:action] getIsNonInteractiveSession=' + getIsNonInteractiveSession());
     if (getIsNonInteractiveSession()) {
+      console.error('[debug:action] before applyConfigEnvironmentVariables');
       // Apply full merged settings env now (including project-scoped
       // .claude/settings.json PATH/GIT_DIR/GIT_WORK_TREE) so gitExe() and
       // the git spawn below see it. Trust is implicit in -p mode; the
@@ -1978,6 +1980,7 @@ async function run(): Promise<CommanderCommand> {
       // getSettings_DEPRECATED at managedEnv.ts:86 which merges all enabled
       // sources including projectSettings/localSettings.
       applyConfigEnvironmentVariables();
+      console.error('[debug:action] after applyConfigEnvironmentVariables');
 
       // Spawn git status/log/branch now so the subprocess execution overlaps
       // with the getCommands await below and startDeferredPrefetches. After
@@ -1989,6 +1992,7 @@ async function run(): Promise<CommanderCommand> {
       // a cache hit. The microtask from await getIsGit() drains at the
       // getCommands Promise.all await below. Trust is implicit in -p mode
       // (same gate as prefetchSystemContextIfSafe).
+      console.error('[debug:action] before fire-and-forget calls');
       void getSystemContext();
       // Kick getUserContext now too — its first await (fs.readFile in
       // getMemoryFiles) yields naturally, so the CLAUDE.md directory walk
@@ -2002,6 +2006,7 @@ async function run(): Promise<CommanderCommand> {
       // the await joins the in-flight fetch. Non-Bedrock is a sync
       // early-return (zero-cost).
       void ensureModelStringsInitialized();
+      console.error('[debug:action] fire-and-forget calls done');
     }
 
     // Apply --name: cache-only so no orphan file is created before the
@@ -2041,8 +2046,9 @@ async function run(): Promise<CommanderCommand> {
     const commandsStart = Date.now();
     // Join the promises kicked before setup() (or start fresh if
     // worktreeEnabled gated the early kick). Both memoized by cwd.
+    console.error('[debug:action] before commands+agents await');
     const [commands, agentDefinitionsResult] = await Promise.all([commandsPromise ?? getCommands(currentCwd), agentDefsPromise ?? getAgentDefinitionsWithOverrides(currentCwd)]);
-    logForDebugging(`[STARTUP] Commands and agents loaded in ${Date.now() - commandsStart}ms`);
+    console.error('[debug:action] commands+agents loaded');
     profileCheckpoint('action_commands_loaded');
 
     // Parse CLI agents if provided via --agents flag
@@ -2230,6 +2236,7 @@ async function run(): Promise<CommanderCommand> {
     let stats!: StatsStore;
 
     // Show setup screens after commands are loaded
+    console.error('[debug:action] isNonInteractiveSession=' + isNonInteractiveSession);
     if (!isNonInteractiveSession) {
       const ctx = getRenderContext(false);
       getFpsMetrics = ctx.getFpsMetrics;

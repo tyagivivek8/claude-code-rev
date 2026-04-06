@@ -2123,26 +2123,19 @@ async function run(): Promise<CommanderCommand> {
       }
     }
 
-    console.error('[debug:action] before effectiveModel computation');
-    try {
     // Compute effective model early so hooks can run in parallel with MCP
     // If user didn't specify a model but agent has one, use the agent's model
     let effectiveModel = userSpecifiedModel;
-    console.error('[debug:action] effectiveModel=' + effectiveModel);
     if (!effectiveModel && mainThreadAgentDefinition?.model && mainThreadAgentDefinition.model !== 'inherit') {
       effectiveModel = parseUserSpecifiedModel(mainThreadAgentDefinition.model);
     }
     setMainLoopModelOverride(effectiveModel);
-    console.error('[debug:action] after setMainLoopModelOverride');
 
     // Compute resolved model for hooks (use user-specified model at launch)
     setInitialMainLoopModel(getUserSpecifiedModelSetting() || null);
     const initialMainLoopModel = getInitialMainLoopModel();
-    console.error('[debug:action] initialMainLoopModel=' + initialMainLoopModel);
     const resolvedInitialModel = parseUserSpecifiedModel(initialMainLoopModel ?? getDefaultMainLoopModel());
-    console.error('[debug:action] resolvedInitialModel=' + resolvedInitialModel);
     let advisorModel: string | undefined;
-    console.error('[debug:action] before isAdvisorEnabled');
     if (isAdvisorEnabled()) {
       const advisorOption = canUserConfigureAdvisor() ? (options as {
         advisor?: string;
@@ -2165,7 +2158,6 @@ async function run(): Promise<CommanderCommand> {
       }
     }
 
-    } catch(e: any) { console.error('[debug:action] CAUGHT ERROR: ' + e.message + '\n' + e.stack); }
     console.error('[debug:action] before tmux teammates block');
     // For tmux teammates with --agent-type, append the custom agent's prompt
     if (isAgentSwarmsEnabled() && storedTeammateOpts?.agentId && storedTeammateOpts?.agentName && storedTeammateOpts?.teamName && storedTeammateOpts?.agentType) {
@@ -2614,6 +2606,7 @@ async function run(): Promise<CommanderCommand> {
     }
 
     // --print mode
+    console.error('[debug:action] entering print mode path, isNonInteractiveSession=' + isNonInteractiveSession);
     if (isNonInteractiveSession) {
       if (outputFormat === 'stream-json' || outputFormat === 'json') {
         setHasFormattedOutput(true);
@@ -2758,7 +2751,9 @@ async function run(): Promise<CommanderCommand> {
       // fetch was kicked off early (line ~2558) so only residual time blocks
       // here. --bare skips claude.ai entirely for perf-sensitive scripts.
       profileCheckpoint('before_connectMcp');
+      console.error('[debug:action] before connectMcpBatch regular');
       await connectMcpBatch(regularMcpConfigs, 'regular');
+      console.error('[debug:action] after connectMcpBatch regular');
       profileCheckpoint('after_connectMcp');
       // Dedup: suppress plugin MCP servers that duplicate a claude.ai
       // connector (connector wins), then connect claude.ai servers.
@@ -2854,10 +2849,13 @@ async function run(): Promise<CommanderCommand> {
       }
       logSessionTelemetry();
       profileCheckpoint('before_print_import');
+      console.error('[debug:action] before print.js import');
       const {
         runHeadless
       } = await import('src/cli/print.js');
+      console.error('[debug:action] after print.js import');
       profileCheckpoint('after_print_import');
+      console.error('[debug:action] calling runHeadless()');
       void runHeadless(inputPrompt, () => headlessStore.getState(), headlessStore.setState, commandsHeadless, tools, sdkMcpConfigs, agentDefinitions.activeAgents, {
         continue: options.continue,
         resume: options.resume,

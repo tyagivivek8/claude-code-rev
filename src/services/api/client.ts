@@ -150,6 +150,17 @@ export async function getAnthropicClient({
       fetch: resolvedFetch,
     }),
   }
+  if (isEnvTruthy(process.env.CLAUDE_CODE_USE_COPILOT)) {
+    const { getValidCopilotToken, createCopilotFetch } = await import('../copilot/index.js')
+    const copilotToken = await getValidCopilotToken()
+    const copilotFetch = createCopilotFetch(copilotToken)
+    return new Anthropic({
+      apiKey: 'copilot-proxy',
+      ...ARGS,
+      fetch: copilotFetch as ClientOptions['fetch'],
+      ...(isDebugToStdErr() && { logger: createStderrLogger() }),
+    })
+  }
   if (isEnvTruthy(process.env.CLAUDE_CODE_USE_BEDROCK)) {
     const { AnthropicBedrock } = await import('@anthropic-ai/bedrock-sdk')
     // Use region override for small fast model if specified

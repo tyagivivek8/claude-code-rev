@@ -103,7 +103,10 @@ export async function renderAndRun(root: Root, element: React.ReactNode): Promis
 }
 export async function showSetupScreens(root: Root, permissionMode: PermissionMode, allowDangerouslySkipPermissions: boolean, commands?: Command[], claudeInChrome?: boolean, devChannels?: ChannelEntry[]): Promise<boolean> {
   if (("production" as string) === 'test' || isEnvTruthy(false) || process.env.IS_DEMO // Skip onboarding in demo mode
+  || isEnvTruthy(process.env.CLAUDE_CODE_USE_COPILOT) // Skip setup for Copilot provider
   ) {
+    setSessionTrustAccepted(true);
+    applyConfigEnvironmentVariables();
     return false;
   }
   const config = getGlobalConfig();

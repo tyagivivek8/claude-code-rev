@@ -2339,16 +2339,19 @@ async function run(): Promise<CommanderCommand> {
     // process.exitCode will be set. Skip all subsequent operations that could
     // trigger code execution before the process exits (e.g. we don't want apiKeyHelper
     // to run if trust was not established).
+    const _dbg2 = (msg: string) => { try { require('fs').writeSync(2, msg + '\n') } catch {} };
     if (process.exitCode !== undefined) {
       logForDebugging('Graceful shutdown initiated, skipping further initialization');
       return;
     }
+    _dbg2('[debug:interactive] after exitCode check');
 
     // Initialize LSP manager AFTER trust is established (or in non-interactive mode
     // where trust is implicit). This prevents plugin LSP servers from executing
     // code in untrusted directories before user consent.
     // Must be after inline plugins are set (if any) so --plugin-dir LSP servers are included.
     initializeLspServerManager();
+    _dbg2('[debug:interactive] after initializeLspServerManager');
 
     // Show settings validation errors after trust is established
     // MCP config errors don't block settings from loading, so exclude them
@@ -2371,6 +2374,7 @@ async function run(): Promise<CommanderCommand> {
     // --bare / SIMPLE: skip — these are cache-warms for the REPL's
     // first-turn responsiveness (quota, passes, fastMode, bootstrap data). Fast
     // mode doesn't apply to the Agent SDK anyway (see getFastModeUnavailableReason).
+    _dbg2('[debug:interactive] before bgRefresh/quota');
     const bgRefreshThrottleMs = getFeatureValue_CACHED_MAY_BE_STALE('tengu_cicada_nap_ms', 0);
     const lastPrefetched = getGlobalConfig().startupPrefetchedAt ?? 0;
     const skipStartupPrefetches = isBareMode() || bgRefreshThrottleMs > 0 && Date.now() - lastPrefetched < bgRefreshThrottleMs;
@@ -2407,10 +2411,12 @@ async function run(): Promise<CommanderCommand> {
       void refreshExampleCommands(); // Pre-fetch example commands (runs git log, no API call)
     }
 
+    _dbg2('[debug:interactive] before mcpConfigPromise');
     // Resolve MCP configs (started early, overlaps with setup/trust dialog work)
     const {
       servers: existingMcpConfigs
     } = await mcpConfigPromise;
+    _dbg2('[debug:interactive] after mcpConfigPromise');
     logForDebugging(`[STARTUP] MCP configs resolved in ${mcpConfigResolvedMs}ms (awaited at +${Date.now() - mcpConfigStart}ms)`);
     // CLI flag (--mcp-config) should override file-based configs, matching settings precedence
     const allMcpConfigs = {
@@ -3840,6 +3846,7 @@ async function run(): Promise<CommanderCommand> {
         }
       }
       const initialMessages = deepLinkBanner ? [deepLinkBanner, ...hookMessages] : hookMessages.length > 0 ? hookMessages : undefined;
+      _dbg2('[debug:interactive] before launchRepl');
       await launchRepl(root, {
         getFpsMetrics,
         stats,

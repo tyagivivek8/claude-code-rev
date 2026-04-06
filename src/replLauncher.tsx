@@ -9,14 +9,19 @@ type AppWrapperProps = {
   stats?: StatsStore;
   initialState: AppState;
 };
+const _dbg = (msg: string) => { try { require('fs').writeSync(2, msg + '\n') } catch {} };
 export async function launchRepl(root: Root, appProps: AppWrapperProps, replProps: REPLProps, renderAndRun: (root: Root, element: React.ReactNode) => Promise<void>): Promise<void> {
+  _dbg('[debug:repl] importing App.js...');
   const {
     App
   } = await import('./components/App.js');
+  _dbg('[debug:repl] importing REPL.js...');
   const {
     REPL
   } = await import('./screens/REPL.js');
+  _dbg('[debug:repl] calling renderAndRun...');
   await renderAndRun(root, <App {...appProps}>
       <REPL {...replProps} />
     </App>);
+  _dbg('[debug:repl] renderAndRun returned');
 }

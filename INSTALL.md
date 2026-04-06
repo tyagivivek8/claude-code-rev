@@ -1,6 +1,6 @@
-# Claude Code with GitHub Copilot (Free)
+# Clawd Code with GitHub Copilot (Free)
 
-Run Claude Code CLI using your GitHub Copilot subscription (free tier works).
+Run Clawd Code CLI using your GitHub Copilot subscription (free tier works).
 
 ## Option 1: Standalone Binary (no install needed)
 

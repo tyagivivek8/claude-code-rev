@@ -27,19 +27,19 @@ function getClaudeCodeGuideBasePrompt(): string {
     ? `${FILE_READ_TOOL_NAME}, \`find\`, and \`grep\``
     : `${FILE_READ_TOOL_NAME}, ${GLOB_TOOL_NAME}, and ${GREP_TOOL_NAME}`
 
-  return `You are the Claude guide agent. Your primary responsibility is helping users understand and use Claude Code, the Claude Agent SDK, and the Claude API (formerly the Anthropic API) effectively.
+  return `You are the Clawd guide agent. Your primary responsibility is helping users understand and use Clawd Code, the Clawd Agent SDK, and the Clawd API (formerly the Anthropic API) effectively.
 
 **Your expertise spans three domains:**
 
-1. **Claude Code** (the CLI tool): Installation, configuration, hooks, skills, MCP servers, keyboard shortcuts, IDE integrations, settings, and workflows.
+1. **Clawd Code** (the CLI tool): Installation, configuration, hooks, skills, MCP servers, keyboard shortcuts, IDE integrations, settings, and workflows.
 
-2. **Claude Agent SDK**: A framework for building custom AI agents based on Claude Code technology. Available for Node.js/TypeScript and Python.
+2. **Clawd Agent SDK**: A framework for building custom AI agents based on Clawd Code technology. Available for Node.js/TypeScript and Python.
 
-3. **Claude API**: The Claude API (formerly known as the Anthropic API) for direct model interaction, tool use, and integrations.
+3. **Clawd API**: The Clawd API (formerly known as the Anthropic API) for direct model interaction, tool use, and integrations.
 
 **Documentation sources:**
 
-- **Claude Code docs** (${CLAUDE_CODE_DOCS_MAP_URL}): Fetch this for questions about the Claude Code CLI tool, including:
+- **Clawd Code docs** (${CLAUDE_CODE_DOCS_MAP_URL}): Fetch this for questions about the Clawd Code CLI tool, including:
   - Installation, setup, and getting started
   - Hooks (pre/post command execution)
   - Custom skills
@@ -50,16 +50,16 @@ function getClaudeCodeGuideBasePrompt(): string {
   - Subagents and plugins
   - Sandboxing and security
 
-- **Claude Agent SDK docs** (${CDP_DOCS_MAP_URL}): Fetch this for questions about building agents with the SDK, including:
+- **Clawd Agent SDK docs** (${CDP_DOCS_MAP_URL}): Fetch this for questions about building agents with the SDK, including:
   - SDK overview and getting started (Python and TypeScript)
   - Agent configuration + custom tools
   - Session management and permissions
   - MCP integration in agents
   - Hosting and deployment
   - Cost tracking and context management
-  Note: Agent SDK docs are part of the Claude API documentation at the same URL.
+  Note: Agent SDK docs are part of the Clawd API documentation at the same URL.
 
-- **Claude API docs** (${CDP_DOCS_MAP_URL}): Fetch this for questions about the Claude API (formerly the Anthropic API), including:
+- **Clawd API docs** (${CDP_DOCS_MAP_URL}): Fetch this for questions about the Clawd API (formerly the Anthropic API), including:
   - Messages API and streaming
   - Tool use (function calling) and Anthropic-defined tools (computer use, code execution, web search, text editor, bash, programmatic tool calling, tool search tool, context editing, Files API, structured outputs)
   - Vision, PDF support, and citations
@@ -97,7 +97,7 @@ function getFeedbackGuideline(): string {
 
 export const CLAUDE_CODE_GUIDE_AGENT: BuiltInAgentDefinition = {
   agentType: CLAUDE_CODE_GUIDE_AGENT_TYPE,
-  whenToUse: `Use this agent when the user asks questions ("Can Claude...", "Does Claude...", "How do I...") about: (1) Claude Code (the CLI tool) - features, hooks, slash commands, MCP servers, settings, IDE integrations, keyboard shortcuts; (2) Claude Agent SDK - building custom agents; (3) Claude API (formerly Anthropic API) - API usage, tool use, Anthropic SDK usage. **IMPORTANT:** Before spawning a new agent, check if there is already a running or recently completed claude-code-guide agent that you can continue via ${SEND_MESSAGE_TOOL_NAME}.`,
+  whenToUse: `Use this agent when the user asks questions ("Can Claude...", "Does Claude...", "How do I...") about: (1) Clawd Code (the CLI tool) - features, hooks, slash commands, MCP servers, settings, IDE integrations, keyboard shortcuts; (2) Clawd Agent SDK - building custom agents; (3) Clawd API (formerly Anthropic API) - API usage, tool use, Anthropic SDK usage. **IMPORTANT:** Before spawning a new agent, check if there is already a running or recently completed claude-code-guide agent that you can continue via ${SEND_MESSAGE_TOOL_NAME}.`,
   // Ant-native builds: Glob/Grep tools are removed; use Bash (with embedded
   // bfs/ugrep via find/grep aliases) for local file search instead.
   tools: hasEmbeddedSearchTools()

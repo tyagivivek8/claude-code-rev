@@ -8,15 +8,25 @@ import { ConfigurableShortcutHint } from '../../components/ConfigurableShortcutH
 import { ConsoleOAuthFlow } from '../../components/ConsoleOAuthFlow.js';
 import { Dialog } from '../../components/design-system/Dialog.js';
 import { useMainLoopModel } from '../../hooks/useMainLoopModel.js';
-import { Text } from '../../ink.js';
+import { Box, Text } from '../../ink.js';
 import { refreshGrowthBookAfterAuthChange } from '../../services/analytics/growthbook.js';
 import { refreshPolicyLimits } from '../../services/policyLimits/index.js';
 import { refreshRemoteManagedSettings } from '../../services/remoteManagedSettings/index.js';
 import type { LocalJSXCommandOnDone } from '../../types/command.js';
+import { isEnvTruthy } from '../../utils/envUtils.js';
 import { stripSignatureBlocks } from '../../utils/messages.js';
 import { checkAndDisableAutoModeIfNeeded, checkAndDisableBypassPermissionsIfNeeded, resetAutoModeGateCheck, resetBypassPermissionsCheck } from '../../utils/permissions/bypassPermissionsKillswitch.js';
 import { resetUserCache } from '../../utils/user.js';
 export async function call(onDone: LocalJSXCommandOnDone, context: LocalJSXCommandContext): Promise<React.ReactNode> {
+  // In Copilot mode, run GitHub device flow instead of Anthropic OAuth
+  if (isEnvTruthy(process.env.CLAUDE_CODE_USE_COPILOT)) {
+    return <CopilotLogin onDone={async success => {
+      if (success) {
+        context.onChangeAPIKey();
+      }
+      onDone(success ? 'Copilot login successful' : 'Copilot login failed');
+    }} />;
+  }
   return <Login onDone={async success => {
     context.onChangeAPIKey();
     // Signature-bearing blocks (thinking, connector_text) are bound to the API key —
@@ -100,4 +110,33 @@ export function Login(props) {
 }
 function _temp(exitState) {
   return exitState.pending ? <Text>Press {exitState.keyName} again to exit</Text> : <ConfigurableShortcutHint action="confirm:no" context="Confirmation" fallback="Esc" description="cancel" />;
+}
+
+function CopilotLogin(props: { onDone: (success: boolean) => void }) {
+  const [status, setStatus] = React.useState<'idle' | 'running' | 'done' | 'error'>('idle');
+  const [error, setError] = React.useState<string>('');
+
+  React.useEffect(() => {
+    if (status !== 'idle') return;
+    setStatus('running');
+    (async () => {
+      try {
+        const { clearCopilotAuth, getValidCopilotToken } = await import('../../services/copilot/index.js');
+        clearCopilotAuth();
+        await getValidCopilotToken();
+        setStatus('done');
+        props.onDone(true);
+      } catch (err: any) {
+        setError(err?.message || String(err));
+        setStatus('error');
+        props.onDone(false);
+      }
+    })();
+  }, [status]);
+
+  return <Box flexDirection="column">
+    {status === 'running' && <Text>Authenticating with GitHub Copilot...</Text>}
+    {status === 'done' && <Text color="success">GitHub Copilot authentication successful.</Text>}
+    {status === 'error' && <Text color="error">Copilot login failed: {error}</Text>}
+  </Box>;
 }

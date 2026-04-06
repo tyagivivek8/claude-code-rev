@@ -63,7 +63,7 @@ else
         ALIAS_LINE="alias claude='$CURRENT_DIR/$BINARY'"
         if ! grep -qF "$ALIAS_LINE" "$SHELL_RC" 2>/dev/null; then
             echo "" >> "$SHELL_RC"
-            echo "# Claude Code (Copilot)" >> "$SHELL_RC"
+            echo "# Clawd Code (Copilot)" >> "$SHELL_RC"
             echo "$ALIAS_LINE" >> "$SHELL_RC"
             echo "Added alias to $SHELL_RC. Run 'source $SHELL_RC' or open a new terminal."
         else

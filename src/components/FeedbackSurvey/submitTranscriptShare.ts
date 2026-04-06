@@ -3,6 +3,7 @@ import { readFile, stat } from 'fs/promises'
 import type { Message } from '../../types/message.js'
 import { checkAndRefreshOAuthTokenIfNeeded } from '../../utils/auth.js'
 import { logForDebugging } from '../../utils/debug.js'
+import { isEnvTruthy } from '../../utils/envUtils.js'
 import { errorMessage } from '../../utils/errors.js'
 import { getAuthHeaders, getUserAgent } from '../../utils/http.js'
 import { normalizeMessagesForAPI } from '../../utils/messages.js'
@@ -31,6 +32,10 @@ export async function submitTranscriptShare(
   trigger: TranscriptShareTrigger,
   appearanceId: string,
 ): Promise<TranscriptShareResult> {
+  // Don't send transcripts to Anthropic in Copilot mode
+  if (isEnvTruthy(process.env.CLAUDE_CODE_USE_COPILOT)) {
+    return { success: false }
+  }
   try {
     logForDebugging('Collecting transcript for sharing', { level: 'info' })
 

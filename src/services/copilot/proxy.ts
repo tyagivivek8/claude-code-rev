@@ -6,6 +6,8 @@
  * translates the SSE responses back to Anthropic format.
  */
 
+import { writeSync } from 'fs'
+
 const COPILOT_CHAT_URL =
   'https://api.githubcopilot.com/chat/completions'
 
@@ -292,7 +294,7 @@ function createAnthropicSSEStream(
   let sentStart = false
   let inputTokens = 0
   let outputTokens = 0
-  const messageId = `msg_copilot_${Date.now()}`
+  const messageId = `msg_copilot_${crypto.randomUUID()}`
 
   return new ReadableStream({
     async start(controller) {
@@ -492,7 +494,7 @@ export function createCopilotFetch(
       })
     } catch (fetchErr: any) {
       const msg = fetchErr?.message || String(fetchErr)
-      process.stderr.write(`\n[Copilot] Network error: ${msg}\n\n`)
+      writeSync(2, `\n[Copilot] Network error: ${msg}\n\n`)
       const anthropicError = JSON.stringify({
         type: 'error',
         error: { type: 'api_error', message: `[Copilot] Network error: ${msg}` },
@@ -516,7 +518,7 @@ export function createCopilotFetch(
       const userMsg = isQuota
         ? `[Copilot] Rate limit / quota exceeded. Try again in a few minutes, or switch to a different model with --model sonnet`
         : `[Copilot] API error (${res.status}): ${errMsg}`
-      process.stderr.write(`\n${userMsg}\n\n`)
+      writeSync(2, `\n${userMsg}\n\n`)
 
       // Return as Anthropic-formatted error so the SDK handles it properly
       const anthropicError = JSON.stringify({
@@ -544,8 +546,57 @@ export function createCopilotFetch(
       })
     }
 
-    // Non-streaming: would need full response translation
-    // For now, return as-is (streaming is the primary path)
-    return res
+    // Non-streaming: translate OpenAI response to Anthropic format
+    const openaiResult = (await res.json()) as {
+      id?: string
+      choices?: Array<{
+        message?: {
+          content?: string | null
+          tool_calls?: Array<{
+            id: string
+            function: { name: string; arguments: string }
+          }>
+        }
+        finish_reason?: string
+      }>
+      usage?: { prompt_tokens?: number; completion_tokens?: number }
+    }
+
+    const choice = openaiResult.choices?.[0]
+    const content: unknown[] = []
+    if (choice?.message?.content) {
+      content.push({ type: 'text', text: choice.message.content })
+    }
+    if (choice?.message?.tool_calls) {
+      for (const tc of choice.message.tool_calls) {
+        let input = {}
+        try { input = JSON.parse(tc.function.arguments) } catch {}
+        content.push({
+          type: 'tool_use',
+          id: tc.id,
+          name: tc.function.name,
+          input,
+        })
+      }
+    }
+
+    const anthropicResponse = {
+      id: `msg_copilot_${crypto.randomUUID()}`,
+      type: 'message',
+      role: 'assistant',
+      model,
+      content,
+      stop_reason: choice?.finish_reason === 'tool_calls' ? 'tool_use' : 'end_turn',
+      stop_sequence: null,
+      usage: {
+        input_tokens: openaiResult.usage?.prompt_tokens ?? 0,
+        output_tokens: openaiResult.usage?.completion_tokens ?? 0,
+      },
+    }
+
+    return new Response(JSON.stringify(anthropicResponse), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    })
   }
 }

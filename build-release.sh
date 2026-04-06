@@ -4,7 +4,7 @@ set -e
 
 mkdir -p dist
 
-echo "Building Claude Code (Copilot Edition)..."
+echo "Building Clawd Code (Copilot Edition)..."
 echo ""
 
 echo "[1/4] Windows (x64)..."

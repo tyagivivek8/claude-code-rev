@@ -5,6 +5,7 @@ import {
   logEvent,
 } from '../../services/analytics/index.js'
 import { queryHaiku } from '../../services/api/claude.js'
+import { isEnvTruthy } from '../../utils/envUtils.js'
 import { AbortError } from '../../utils/errors.js'
 import { getWebFetchUserAgent } from '../../utils/http.js'
 import { logError } from '../../utils/log.js'
@@ -20,7 +21,7 @@ import { makeSecondaryModelPrompt } from './prompt.js'
 // Custom error classes for domain blocking
 class DomainBlockedError extends Error {
   constructor(domain: string) {
-    super(`Claude Code is unable to fetch from ${domain}`)
+    super(`Clawd Code is unable to fetch from ${domain}`)
     this.name = 'DomainBlockedError'
   }
 }
@@ -100,7 +101,7 @@ function getTurndownService(): Promise<InstanceType<TurndownCtor>> {
 // for a data exfiltration. However, this is too restrictive for some customers'
 // legitimate use cases, such as JWT-signed URLs (e.g., cloud service signed URLs)
 // that can be much longer. We already require user approval for each domain,
-// which provides a primary security boundary. In addition, Claude Code has
+// which provides a primary security boundary. In addition, Clawd Code has
 // other data exfil channels, and this one does not seem relatively high risk,
 // so I'm removing that length restriction. -ab
 const MAX_URL_LENGTH = 2000
@@ -176,6 +177,10 @@ type DomainCheckResult =
 export async function checkDomainBlocklist(
   domain: string,
 ): Promise<DomainCheckResult> {
+  // Skip Anthropic domain check in Copilot mode — no auth to call it
+  if (isEnvTruthy(process.env.CLAUDE_CODE_USE_COPILOT)) {
+    return { status: 'allowed' }
+  }
   if (DOMAIN_CHECK_CACHE.has(domain)) {
     return { status: 'allowed' }
   }

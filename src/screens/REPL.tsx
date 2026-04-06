@@ -1040,7 +1040,7 @@ export function REPL({
   } | null>(null);
 
   // Track local JSX commands separately so tools can't overwrite them.
-  // This enables "immediate" commands (like /btw) to persist while Claude is processing.
+  // This enables "immediate" commands (like /btw) to persist while Clawd is processing.
   const localJSXCommandRef = useRef<{
     jsx: React.ReactNode | null;
     shouldHidePromptInput: boolean;
@@ -1133,7 +1133,7 @@ export function REPL({
   // session from mid-conversation context.
   const haikuTitleAttemptedRef = useRef((initialMessages?.length ?? 0) > 0);
   const agentTitle = mainThreadAgentDefinition?.agentType;
-  const terminalTitle = sessionTitle ?? agentTitle ?? haikuTitle ?? 'Claude Code';
+  const terminalTitle = sessionTitle ?? agentTitle ?? haikuTitle ?? 'Clawd Code';
   const isWaitingForApproval = toolUseConfirmQueue.length > 0 || promptQueue.length > 0 || pendingWorkerRequest || pendingSandboxRequest;
   // Local-jsx commands (like /plugin, /config) show user-facing dialogs that
   // wait for input. Require jsx != null — if the flag is stuck true but jsx
@@ -1146,7 +1146,7 @@ export function REPL({
   // here because onQueryImpl reads them (background session description,
   // haiku title extraction gate).
 
-  // Prevent macOS from sleeping while Claude is working
+  // Prevent macOS from sleeping while Clawd is working
   useEffect(() => {
     if (isLoading && !isWaitingForApproval && !isShowingLocalJSXCommand) {
       startPreventSleep();
@@ -2684,7 +2684,7 @@ export function REPL({
     // which was broken by SessionStart hook messages (prepended via
     // useDeferredHookMessages) and attachment messages (appended by
     // processTextPrompt) — both pushed length past 1 on turn one, so the
-    // title silently fell through to the "Claude Code" default.
+    // title silently fell through to the "Clawd Code" default.
     if (!titleDisabled && !sessionTitle && !agentTitle && !haikuTitleAttemptedRef.current) {
       const firstUserMessage = newMessages.find(m => m.type === 'user' && !m.isMeta);
       const text = firstUserMessage?.type === 'user' ? getContentText(firstUserMessage.message.content as string | ContentBlockParam[]) : null;
@@ -3160,7 +3160,7 @@ export function REPL({
     }
 
     // Handle immediate commands - these bypass the queue and execute right away
-    // even while Claude is processing. Commands opt-in via `immediate: true`.
+    // even while Clawd is processing. Commands opt-in via `immediate: true`.
     // Commands triggered via keybindings are always treated as immediate.
     if (!speculationAccept && input.trim().startsWith('/')) {
       // Expand [Pasted text #N] refs so immediate commands (e.g. /btw) receive
@@ -3926,7 +3926,7 @@ export function REPL({
       // Check if user has interacted since the response ended
       const lastUserInteraction = getLastInteractionTime();
       if (lastUserInteraction > lastQueryCompletionTime) {
-        // User has interacted since Claude finished - they're not idle, don't notify
+        // User has interacted since Clawd finished - they're not idle, don't notify
         return;
       }
 
@@ -4120,7 +4120,7 @@ export function REPL({
   useEffect(() => {
     const handleSuspend = () => {
       // Print suspension instructions
-      process.stdout.write(`\nClaude Code has been suspended. Run \`fg\` to bring Claude Code back.\nNote: ctrl + z now suspends Claude Code, ctrl + _ undoes input.\n`);
+      process.stdout.write(`\nClawd Code has been suspended. Run \`fg\` to bring Clawd Code back.\nNote: ctrl + z now suspends Clawd Code, ctrl + _ undoes input.\n`);
     };
     const handleResume = () => {
       // Force complete component tree replacement instead of terminal clear
@@ -4570,7 +4570,7 @@ export function REPL({
                   it would sit at the last visible transcript row right above
                   the ▔ divider, showing "❯ /config" as redundant clutter
                   (the modal IS the /config UI). Outside modals it stays so
-                  the user sees their input echoed while Claude processes. */}
+                  the user sees their input echoed while Clawd processes. */}
               {!disabled && placeholderText && !centeredModal && <UserTextMessage param={{
           text: placeholderText,
           type: 'text'
@@ -4890,7 +4890,7 @@ export function REPL({
 
                 {!toolJSX?.shouldHidePromptInput && !focusedInputDialog && !isExiting && !disabled && !cursor && <>
                       {autoRunIssueReason && <AutoRunIssueNotification onRun={handleAutoRunIssue} onCancel={handleCancelAutoRunIssue} reason={getAutoRunIssueReasonText(autoRunIssueReason)} />}
-                      {postCompactSurvey.state !== 'closed' ? <FeedbackSurvey state={postCompactSurvey.state} lastResponse={postCompactSurvey.lastResponse} handleSelect={postCompactSurvey.handleSelect} inputValue={inputValue} setInputValue={setInputValue} onRequestFeedback={handleSurveyRequestFeedback} /> : memorySurvey.state !== 'closed' ? <FeedbackSurvey state={memorySurvey.state} lastResponse={memorySurvey.lastResponse} handleSelect={memorySurvey.handleSelect} handleTranscriptSelect={memorySurvey.handleTranscriptSelect} inputValue={inputValue} setInputValue={setInputValue} onRequestFeedback={handleSurveyRequestFeedback} message="How well did Claude use its memory? (optional)" /> : <FeedbackSurvey state={feedbackSurvey.state} lastResponse={feedbackSurvey.lastResponse} handleSelect={feedbackSurvey.handleSelect} handleTranscriptSelect={feedbackSurvey.handleTranscriptSelect} inputValue={inputValue} setInputValue={setInputValue} onRequestFeedback={didAutoRunIssueRef.current ? undefined : handleSurveyRequestFeedback} />}
+                      {postCompactSurvey.state !== 'closed' ? <FeedbackSurvey state={postCompactSurvey.state} lastResponse={postCompactSurvey.lastResponse} handleSelect={postCompactSurvey.handleSelect} inputValue={inputValue} setInputValue={setInputValue} onRequestFeedback={handleSurveyRequestFeedback} /> : memorySurvey.state !== 'closed' ? <FeedbackSurvey state={memorySurvey.state} lastResponse={memorySurvey.lastResponse} handleSelect={memorySurvey.handleSelect} handleTranscriptSelect={memorySurvey.handleTranscriptSelect} inputValue={inputValue} setInputValue={setInputValue} onRequestFeedback={handleSurveyRequestFeedback} message="How well did Clawd use its memory? (optional)" /> : <FeedbackSurvey state={feedbackSurvey.state} lastResponse={feedbackSurvey.lastResponse} handleSelect={feedbackSurvey.handleSelect} handleTranscriptSelect={feedbackSurvey.handleTranscriptSelect} inputValue={inputValue} setInputValue={setInputValue} onRequestFeedback={didAutoRunIssueRef.current ? undefined : handleSurveyRequestFeedback} />}
                       {/* Frustration-triggered transcript sharing prompt */}
                       {frustrationDetection.state !== 'closed' && <FeedbackSurvey state={frustrationDetection.state} lastResponse={null} handleSelect={() => {}} handleTranscriptSelect={frustrationDetection.handleTranscriptSelect} inputValue={inputValue} setInputValue={setInputValue} />}
                       {/* Skill improvement survey - appears when improvements detected (ant-only) */}

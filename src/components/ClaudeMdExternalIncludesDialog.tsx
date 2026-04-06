@@ -11,7 +11,7 @@ type Props = {
   isStandaloneDialog?: boolean;
   externalIncludes?: ExternalClaudeMdInclude[];
 };
-export function ClaudeMdExternalIncludesDialog(t0) {
+export function ClawdMdExternalIncludesDialog(t0) {
   const $ = _c(18);
   const {
     onDone,
@@ -74,7 +74,7 @@ export function ClaudeMdExternalIncludesDialog(t0) {
   }
   let t8;
   if ($[8] === Symbol.for("react.memo_cache_sentinel")) {
-    t8 = <Text dimColor={true}>Important: Only use Claude Code with files you trust. Accessing untrusted files may pose security risks{" "}<Link url="https://code.claude.com/docs/en/security" />{" "}</Text>;
+    t8 = <Text dimColor={true}>Important: Only use Clawd Code with files you trust. Accessing untrusted files may pose security risks{" "}<Link url="https://code.claude.com/docs/en/security" />{" "}</Text>;
     $[8] = t8;
   } else {
     t8 = $[8];

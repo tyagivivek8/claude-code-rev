@@ -5,7 +5,7 @@
  * Tokens are cached in ~/.claude/copilot-auth.json.
  */
 
-import { readFileSync, writeFileSync, mkdirSync } from 'fs'
+import { readFileSync, writeFileSync, writeSync, mkdirSync } from 'fs'
 import { join } from 'path'
 import { homedir } from 'os'
 
@@ -75,8 +75,10 @@ export async function runGitHubDeviceFlow(): Promise<string> {
     expires_in: number
   }
 
-  // Use process.stderr.write to bypass Ink's console.error patch in REPL mode
-  process.stderr.write(
+  // Write directly to fd 2 (stderr) to bypass Ink's process.stderr.write
+  // patch, which swallows output in REPL mode. fs.writeSync(2, ...) hits
+  // the kernel fd directly and is immune to Node stream monkey-patching.
+  writeSync(2,
     `\n  GitHub Copilot Authentication Required\n` +
       `  Open: ${codeData.verification_uri}\n` +
       `  Enter code: ${codeData.user_code}\n` +
@@ -109,7 +111,7 @@ export async function runGitHubDeviceFlow(): Promise<string> {
     }
 
     if (tokenData.access_token) {
-      process.stderr.write('  GitHub authentication successful!\n\n')
+      writeSync(2, '  GitHub authentication successful!\n\n')
       return tokenData.access_token
     }
 

@@ -206,7 +206,7 @@ export async function showSetupScreens(root: Root, permissionMode: PermissionMod
   // Check for custom API key
   // On homespace, ANTHROPIC_API_KEY is preserved in process.env for child
   // processes but ignored by Claude Code itself (see auth.ts).
-  if (process.env.ANTHROPIC_API_KEY && !isRunningOnHomespace()) {
+  if (process.env.ANTHROPIC_API_KEY && !isRunningOnHomespace() && !isEnvTruthy(process.env.CLAUDE_CODE_USE_COPILOT)) {
     const customApiKeyTruncated = normalizeApiKeyForConfig(process.env.ANTHROPIC_API_KEY);
     const keyStatus = getCustomApiKeyStatus(customApiKeyTruncated);
     if (keyStatus === 'new') {

@@ -1206,7 +1206,7 @@ export class QueryEngine {
 }
 
 /**
- * Sends a single prompt to the Claude API and returns the response.
+ * Sends a single prompt to the Clawd API and returns the response.
  * Assumes that claude is being used non-interactively -- will not
  * ask the user for permissions or further input.
  *

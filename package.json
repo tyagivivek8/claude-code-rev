@@ -1,7 +1,7 @@
 {
   "name": "claude-code-working",
   "version": "1.0.3",
-  "description": "Working reverse-engineered Claude Code CLI rebuilt to reproduce the original terminal workflow",
+  "description": "Clawd Code — Claude Code CLI rebuilt with GitHub Copilot integration",
   "type": "module",
   "author": "iliya <iliyazelenkog@gmail.com>",
   "repository": {

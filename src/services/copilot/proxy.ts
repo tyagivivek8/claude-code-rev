@@ -10,33 +10,35 @@ const COPILOT_CHAT_URL =
   'https://api.githubcopilot.com/chat/completions'
 
 // ── Model mapping ────────────────────────────────────────────────
-// Copilot supports: claude-sonnet-4, claude-opus-4 (and possibly claude-3.5-sonnet)
-// Map all Anthropic model IDs to supported Copilot model names
+// Copilot uses dot notation: claude-sonnet-4.5, claude-opus-4.6, etc.
 const MODEL_MAP: Record<string, string> = {
-  // Opus variants
-  'claude-opus-4-20250514': 'claude-sonnet-4',
-  'claude-opus-4': 'claude-sonnet-4',
-  'claude-opus-4-1-20250805': 'claude-sonnet-4',
-  'claude-opus-4-1': 'claude-sonnet-4',
-  'claude-opus-4-5-20251101': 'claude-sonnet-4',
-  'claude-opus-4-5': 'claude-sonnet-4',
-  'claude-opus-4-6': 'claude-sonnet-4',
+  // Opus variants → claude-sonnet-4.5 (best available on Copilot)
+  'claude-opus-4-20250514': 'claude-sonnet-4.5',
+  'claude-opus-4': 'claude-sonnet-4.5',
+  'claude-opus-4-1-20250805': 'claude-sonnet-4.5',
+  'claude-opus-4-1': 'claude-sonnet-4.5',
+  'claude-opus-4-5-20251101': 'claude-sonnet-4.5',
+  'claude-opus-4-5': 'claude-sonnet-4.5',
+  'claude-opus-4-6': 'claude-sonnet-4.5',
   // Sonnet variants
-  'claude-sonnet-4-20250514': 'claude-sonnet-4',
-  'claude-sonnet-4': 'claude-sonnet-4',
-  'claude-sonnet-4-5-20250929': 'claude-sonnet-4',
-  'claude-sonnet-4-5': 'claude-sonnet-4',
-  'claude-sonnet-4-6': 'claude-sonnet-4',
-  'claude-3-7-sonnet-20250219': 'claude-sonnet-4',
-  'claude-3-5-sonnet-20241022': 'claude-sonnet-4',
+  'claude-sonnet-4-20250514': 'claude-sonnet-4.5',
+  'claude-sonnet-4': 'claude-sonnet-4.5',
+  'claude-sonnet-4-5-20250929': 'claude-sonnet-4.5',
+  'claude-sonnet-4-5': 'claude-sonnet-4.5',
+  'claude-sonnet-4-6': 'claude-sonnet-4.5',
+  'claude-3-7-sonnet-20250219': 'claude-sonnet-4.5',
+  'claude-3-5-sonnet-20241022': 'claude-sonnet-4.5',
   // Haiku variants
-  'claude-haiku-4-5-20251001': 'claude-sonnet-4',
-  'claude-haiku-4-5': 'claude-sonnet-4',
-  'claude-3-5-haiku-20241022': 'claude-sonnet-4',
+  'claude-haiku-4-5-20251001': 'claude-haiku-4.5',
+  'claude-haiku-4-5': 'claude-haiku-4.5',
+  'claude-3-5-haiku-20241022': 'claude-haiku-4.5',
 }
 
+// Default to best available model on Copilot
+const DEFAULT_COPILOT_MODEL = 'claude-sonnet-4.5'
+
 function mapModel(model: string): string {
-  const mapped = MODEL_MAP[model] ?? 'claude-sonnet-4'
+  const mapped = MODEL_MAP[model] ?? DEFAULT_COPILOT_MODEL
   if (mapped !== model) {
     process.stderr.write(`[copilot] model: ${model} → ${mapped}\n`)
   }

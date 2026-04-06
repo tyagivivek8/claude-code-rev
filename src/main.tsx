@@ -2852,7 +2852,7 @@ async function run(): Promise<CommanderCommand> {
       console.error('[debug:action] before print.js import');
       const {
         runHeadless
-      } = await import('src/cli/print.js');
+      } = await import('./cli/print.js');
       console.error('[debug:action] after print.js import');
       profileCheckpoint('after_print_import');
       console.error('[debug:action] calling runHeadless()');

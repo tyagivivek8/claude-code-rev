@@ -75,12 +75,12 @@ export async function runGitHubDeviceFlow(): Promise<string> {
     expires_in: number
   }
 
-  // biome-ignore lint/suspicious/noConsole:: intentional user-facing output
-  console.error(
+  // Use process.stderr.write to bypass Ink's console.error patch in REPL mode
+  process.stderr.write(
     `\n  GitHub Copilot Authentication Required\n` +
       `  Open: ${codeData.verification_uri}\n` +
       `  Enter code: ${codeData.user_code}\n` +
-      `  Waiting for authorization...\n`,
+      `  Waiting for authorization...\n\n`,
   )
 
   // Step 2: Poll for token
@@ -109,8 +109,7 @@ export async function runGitHubDeviceFlow(): Promise<string> {
     }
 
     if (tokenData.access_token) {
-      // biome-ignore lint/suspicious/noConsole:: intentional user-facing output
-      console.error('  GitHub authentication successful!\n')
+      process.stderr.write('  GitHub authentication successful!\n\n')
       return tokenData.access_token
     }
 

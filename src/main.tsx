@@ -2850,9 +2850,18 @@ async function run(): Promise<CommanderCommand> {
       logSessionTelemetry();
       profileCheckpoint('before_print_import');
       console.error('[debug:action] before print.js import');
-      const {
-        runHeadless
-      } = await import('./cli/print.js');
+      try {
+        const printMod = await Promise.race([
+          import('./cli/print.js'),
+          new Promise((_, reject) => setTimeout(() => reject(new Error('print.js import timed out after 10s')), 10000))
+        ]);
+        console.error('[debug:action] print.js imported successfully');
+        var runHeadless = (printMod as any).runHeadless;
+      } catch (e: any) {
+        console.error('[debug:action] print.js import FAILED: ' + e.message);
+        if (e.stack) console.error(e.stack);
+        process.exit(1);
+      }
       console.error('[debug:action] after print.js import');
       profileCheckpoint('after_print_import');
       console.error('[debug:action] calling runHeadless()');

@@ -147,6 +147,12 @@ export async function countMessagesTokensWithAPI(
       const betas = getModelBetas(model)
       const containsThinking = hasThinkingBlocks(messages)
 
+      if (getAPIProvider() === 'github-copilot') {
+        // Copilot has no countTokens endpoint — return null to fall back
+        // to local estimation, avoiding a wasted premium request
+        return null
+      }
+
       if (getAPIProvider() === 'bedrock') {
         // @anthropic-sdk/bedrock-sdk doesn't support countTokens currently
         return countTokensWithBedrock({

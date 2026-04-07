@@ -6,9 +6,9 @@ set -e
 
 ARCH=$(uname -m)
 if [ "$ARCH" = "arm64" ]; then
-    BINARY="claude-code-mac-arm64"
+    BINARY="clawd-mac-arm64"
 elif [ "$ARCH" = "x86_64" ]; then
-    BINARY="claude-code-mac-x64"
+    BINARY="clawd-mac-x64"
 else
     echo "Unknown architecture: $ARCH"
     exit 1
@@ -30,10 +30,10 @@ chmod +x "$BINARY"
 
 # Create symlink as 'claude' in /usr/local/bin so it's callable from anywhere
 INSTALL_DIR="/usr/local/bin"
-LINK_NAME="claude"
+LINK_NAME="clawd"
 
 echo ""
-echo "Install to PATH so you can run 'claude' from anywhere?"
+echo "Install to PATH so you can run 'clawd' from anywhere?"
 echo "This will create a symlink at $INSTALL_DIR/$LINK_NAME"
 read -p "Install to PATH? [Y/n] " answer
 answer="${answer:-Y}"
@@ -45,7 +45,7 @@ if [[ "$answer" =~ ^[Yy]$ ]]; then
     else
         sudo ln -sf "$FULL_PATH" "$INSTALL_DIR/$LINK_NAME"
     fi
-    echo "Installed! Run 'claude' from any directory."
+    echo "Installed! Run 'clawd' from any directory."
 else
     # Add current directory to PATH in shell profile
     CURRENT_DIR="$(pwd)"
@@ -60,7 +60,7 @@ else
 
     if [ -n "$SHELL_RC" ]; then
         # Create an alias instead
-        ALIAS_LINE="alias claude='$CURRENT_DIR/$BINARY'"
+        ALIAS_LINE="alias clawd='$CURRENT_DIR/$BINARY'"
         if ! grep -qF "$ALIAS_LINE" "$SHELL_RC" 2>/dev/null; then
             echo "" >> "$SHELL_RC"
             echo "# Clawd Code (Copilot)" >> "$SHELL_RC"

@@ -7,9 +7,20 @@
  */
 
 import { writeSync } from 'fs'
+import { homedir } from 'os'
+import { createHash } from 'crypto'
 
 const COPILOT_CHAT_URL =
   'https://api.githubcopilot.com/chat/completions'
+
+// ── Session & machine identity (for Copilot billing grouping) ───
+// VScode-SessionId: generated once per process, groups agentic calls
+const SESSION_ID = crypto.randomUUID() + String(Date.now())
+
+// VScode-MachineId: stable per machine, derived from hostname + homedir
+const MACHINE_ID = createHash('sha256')
+  .update(`${homedir()}:${process.env.COMPUTERNAME || process.env.HOSTNAME || 'unknown'}`)
+  .digest('hex')
 
 // ── Model mapping ────────────────────────────────────────────────
 // Copilot uses dot notation: claude-sonnet-4.5, claude-opus-4.6, etc.
@@ -463,8 +474,8 @@ export function createCopilotFetch(
           ? input.toString()
           : (input as Request).url
 
-    // Only intercept Anthropic messages API calls
-    if (!url.includes('/v1/messages')) {
+    // Only intercept Anthropic messages API calls (not count_tokens etc.)
+    if (!url.includes('/v1/messages') || url.includes('/count_tokens')) {
       return fetch(input, init)
     }
 
@@ -481,7 +492,9 @@ export function createCopilotFetch(
       'Copilot-Integration-Id': 'vscode-chat',
       'Editor-Version': 'vscode/1.99.0',
       'Editor-Plugin-Version': 'copilot-chat/0.24.2',
-      'Openai-Intent': 'conversation-panel',
+      'Openai-Intent': 'conversation-agent',
+      'VScode-SessionId': SESSION_ID,
+      'VScode-MachineId': MACHINE_ID,
       'X-Request-Id': crypto.randomUUID(),
     }
 
